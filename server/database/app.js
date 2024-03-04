@@ -18,17 +18,24 @@ const Reviews = require('./review');
 
 const Dealerships = require('./dealership');
 
-try {
-  Reviews.deleteMany({}).then(()=>{
-    Reviews.insertMany(reviews_data['reviews']);
-  });
-  Dealerships.deleteMany({}).then(()=>{
-    Dealerships.insertMany(dealerships_data['dealerships']);
-  });
+async function initializeData() {
+    try {
+      await Reviews.deleteMany({});
+      await Reviews.insertMany(reviews_data['reviews']);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching documents' });
+    }
   
-} catch (error) {
-  res.status(500).json({ error: 'Error fetching documents' });
-}
+    try {
+      await Dealerships.deleteMany({});
+      await Dealerships.insertMany(dealerships_data['dealerships']);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching documents' });
+    }
+  }
+  
+  // Llamada a la función
+  initializeData();
 
 
 // Express route to home
@@ -69,7 +76,7 @@ app.get('/fetchDealers', async (req, res) => {
 // Express route to fetch Dealers by a particular state
 app.get('/fetchDealers/:state', async (req, res) => {
   try {
-    const documents = await Dealerships.find({dealership: req.params.state});
+    const documents = await Dealerships.find({state: req.params.state});
     res.json(documents);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching documents' });
@@ -79,7 +86,7 @@ app.get('/fetchDealers/:state', async (req, res) => {
 // Express route to fetch dealer by a particular id
 app.get('/fetchDealer/:id', async (req, res) => {
   try {
-    const documents = await Dealerships.find({dealership: req.params.id});
+    const documents = await Dealerships.find({id: req.params.id});
     res.json(documents);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching documents' });
